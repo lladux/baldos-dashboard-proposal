@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baldots – Admin Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jaro:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<div class="bg-overlay"></div>
+
+<header class="jaro-font">
+    <a href="./index.html">← Volver</a>
+</header>
+
+<h1 class="title jaro-font">Dashboard Administrativo</h1>
+
+<!-- DASHBOARD -->
+<div class="dashboard-grid">
+    <div class="chart-box">
+        <h3 class="jaro-font">Rendimiento 3D por Tema y Dificultad</h3>
+        <div id="performance3D" class="chart-3d"></div>
+    </div>
+
+    <div class="chart-box">
+        <h3 class="jaro-font">Actividad global</h3>
+        <div id="globalActivity" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+        <h3 class="jaro-font">Errores más comunes</h3>
+        <div id="commonErrors" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+        <h3 class="jaro-font">Rendimiento por tema</h3>
+        <div id="topicPerformance" class="chart"></div>
+    </div>
+
+
+    <div class="chart-box">
+        <h3 class="jaro-font">Uso de ayudas</h3>
+        <div id="helpUsage" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+        <h3 class="jaro-font">Retención de usuarios</h3>
+        <div id="retention" class="chart"></div>
+    </div>
+</div>
+
+<!-- CARGAR ECHARTS + ECHARTS GL -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+<script src="adminDashboard.js"></script>
+</body>
+</html>

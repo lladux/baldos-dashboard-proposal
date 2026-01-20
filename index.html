@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baldots – Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jaro:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="bg-overlay"></div>
+
+    <header class="jaro-font">
+        <a href="https://baldots.com/">← Inicio</a>
+        <a href="./admin.html">Admin →</a>
+    </header>
+
+    <h1 class="title jaro-font">Dashboard Estadístico</h1>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+        <div class="kpi-box jaro-font" id="kpiUsers">Usuarios: —</div>
+        <div class="kpi-box jaro-font" id="kpiSolved">Total resueltos: —</div>
+        <div class="kpi-box jaro-font" id="kpiAccuracy">Acierto global: —%</div>
+        <div class="kpi-box jaro-font" id="kpiTime">Tiempo total: —</div>
+    </div>
+
+    <!-- Ranking -->
+    <div class="kpi-grid">
+        <div class="chart-box">
+            <h3 class="jaro-font">Ranking de usuarios</h3>
+            <div id="userRank" class="ranking-list"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-grid">
+        <div class="chart-box">
+            <h3 class="jaro-font">Problemas resueltos por día</h3>
+            <div id="problemsPerDay" class="chart"></div>
+        </div>
+
+        <div class="chart-box">
+            <h3 class="jaro-font">Correctos vs Incorrectos Global</h3>
+            <div id="correctVsWrong" class="chart"></div>
+        </div>
+
+        <div class="chart-box">
+            <h3 class="jaro-font">Problemas resueltos por rango de tiempo</h3>
+            <div id="avgTimePerProblem" class="chart"></div>
+        </div>
+        <div class="chart-box">
+            <h3 class="jaro-font">Problemas resueltos por dificultad</h3>
+            <div id="problemsByDifficulty" class="chart"></div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DE USUARIO -->
+    <div id="userModal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: end;">
+                <button class="modal-close" id="modalCloseBtn" onclick="closeUserModal()">×</button>
+            </div>
+
+            <div class="modal-header">
+                <div class="modal-medal" id="modalMedal"></div>
+                <h2 class="modal-name jaro-font" id="modalName"></h2>
+                <p class="modal-position" id="modalPosition"></p>
+            </div>
+
+            <!-- Stats -->
+            <div class="modal-stats">
+                <div class="modal-stat-box">
+                    <div class="modal-stat-value jaro-font" id="modalSolved">0</div>
+                    <div class="modal-stat-label">Resueltos</div>
+                </div>
+                <div class="modal-stat-box">
+                    <div class="modal-stat-value jaro-font" id="modalAccuracy">0%</div>
+                    <div class="modal-stat-label">Precisión</div>
+                </div>
+            </div>
+
+            <!-- GRÁFICA DEL MODAL -->
+            <div class="modal-chart">
+                <h4 class="jaro-font">Rendimiento</h4>
+                <div id="modalUserChart" class="modal-chart-canvas"></div>
+            </div>
+
+            <!-- Progreso -->
+            <div class="modal-progress">
+                <div class="modal-progress-label">
+                    <span>Progreso General</span>
+                    <span id="modalProgressText">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="modalProgressBar"></div>
+                </div>
+            </div>
+
+            <!-- Detalles -->
+            <div class="modal-details">
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Problemas correctos</span>
+                    <span class="modal-detail-value" id="modalCorrect">0</span>
+                </div>
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Problemas incorrectos</span>
+                    <span class="modal-detail-value" id="modalWrong">0</span>
+                </div>
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Tiempo total invertido</span>
+                    <span class="modal-detail-value" id="modalTime">0m 0s</span>
+                </div>
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Tiempo promedio</span>
+                    <span class="modal-detail-value" id="modalAvgTime">0s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="generaDashboard.js"></script>
+    <script>
+        /* =========================
+           GRÁFICA DEL MODAL USUARIO
+           ========================= */
+
+        let modalChartInstance = null;
+
+        function renderModalUserChart(userData) {
+            const chartDom = document.getElementById("modalUserChart");
+            if (!chartDom) return;
+
+            // Destruir gráfica anterior (evita bugs)
+            if (modalChartInstance) {
+                modalChartInstance.dispose();
+            }
+
+            modalChartInstance = echarts.init(chartDom);
+
+            // Datos simulados de rendimiento semanal
+            const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+            const solved = days.map(() =>
+                Math.max(
+                    1,
+                    Math.round(userData.total_solved / 7 + (Math.random() * 4 - 2))
+                )
+            );
+
+            modalChartInstance.setOption({
+                backgroundColor: "transparent",
+                tooltip: {
+                    trigger: "axis",
+                    backgroundColor: "rgba(0,0,0,0.85)",
+                    borderColor: "rgba(255,255,255,0.2)",
+                    textStyle: { color: "#fff" }
+                },
+                grid: {
+                    left: "5%",
+                    right: "5%",
+                    top: "10%",
+                    bottom: "10%",
+                    containLabel: true
+                },
+                xAxis: {
+                    type: "category",
+                    data: days,
+                    axisLine: {
+                        lineStyle: { color: "rgba(255,255,255,0.3)" }
+                    },
+                    axisLabel: { color: "#fff" }
+                },
+                yAxis: {
+                    type: "value",
+                    name: "Problemas",
+                    nameTextStyle: { color: "#fff" },
+                    axisLine: {
+                        lineStyle: { color: "rgba(255,255,255,0.3)" }
+                    },
+                    axisLabel: { color: "#fff" },
+                    splitLine: {
+                        lineStyle: { color: "rgba(255,255,255,0.1)" }
+                    }
+                },
+                series: [{
+                    type: "line",
+                    smooth: true,
+                    symbol: "circle",
+                    symbolSize: 8,
+                    lineStyle: { width: 3 },
+                    itemStyle: { color: "#91cc75" }, // verde (sin azul)
+                    areaStyle: {
+                        color: {
+                            type: "linear",
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: "rgba(145,204,117,0.45)" },
+                                { offset: 1, color: "rgba(145,204,117,0.05)" }
+                            ]
+                        }
+                    },
+                    data: solved
+                }]
+            });
+
+            // Ajuste al abrir la modal
+            setTimeout(() => {
+                modalChartInstance.resize();
+            }, 50);
+        }
+
+        /* =========================
+           INTEGRACIÓN CON LA MODAL
+           ========================= */
+
+        const originalOpenUserModal = window.openUserModal;
+
+        window.openUserModal = function (userData, position) {
+            if (originalOpenUserModal) {
+                originalOpenUserModal(userData, position);
+            }
+
+            // Dibujar gráfica cuando la modal ya está visible
+            setTimeout(() => {
+                renderModalUserChart(userData);
+            }, 100);
+        };
+    </script>
+
+</body>
+
+</html>
